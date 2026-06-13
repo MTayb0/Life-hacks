@@ -44,7 +44,6 @@ def get_google_trends():
         with urllib.request.urlopen(req, timeout=15) as resp:
             xml = resp.read().decode("utf-8")
         titles = re.findall(r"<title>(.*?)</title>", xml)
-        # First <title> is the feed title itself, skip it
         return [t.strip() for t in titles[1:] if t.strip()]
     except Exception as e:
         print(f"Could not fetch Google Trends: {e}")
@@ -109,63 +108,6 @@ def slugify(text):
 
 
 def main():
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(ARTICLES_DIR, exist_ok=True)
-
-    articles = load_json(ARTICLES_JSON, [])
-    used_topics = load_json(USED_TOPICS_JSON, [])
-
-    result = call_gemini(used_topics)
-
-    topic = result["topic"]
-    title = result["title"]
-    html_body = result["html"]
-    category = result.get("category", "howto")
-
-    now = datetime.now(timezone.utc)
-    date_str = now.strftime("%Y-%m-%d %H:%M UTC")
-    slug = slugify(topic) or "article"
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
-    filename = f"article-{timestamp}-{slug}.html"
-
-    article_html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title}</title>
-  <link rel="stylesheet" href="../style.css">
-</head>
-<body>
-  <a class="back-link" href="../index.html">&larr; Back to all articles</a>
-  <div class="article-body">
-    <h1>{title}</h1>
-    <span class="date">{date_str} &middot; {"🔥 Trending" if category == "trending" else "💡 How-To"}</span>
-    {html_body}
-  </div>
-</body>
-</html>
-"""
-
-    with open(os.path.join(ARTICLES_DIR, filename), "w", encoding="utf-8") as f:
-        f.write(article_html)
-
-    articles.append({
-        "title": title,
-        "filename": filename,
-        "date": date_str,
-        "category": category
-    })
-    save_json(ARTICLES_JSON, articles)
-
-    used_topics.append(topic)
-    save_json(USED_TOPICS_JSON, used_topics)
-
-    print(f"Created: {filename}")
-
-
-if __name__ == "__main__":
-    main()def main():
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(ARTICLES_DIR, exist_ok=True)
 
