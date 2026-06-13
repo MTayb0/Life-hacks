@@ -15,7 +15,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 API_KEY = os.environ["GEMINI_API_KEY"]
-MODEL = "gemini-1.5-flash"
+MODEL = "gemini-2.5-flash"
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={API_KEY}"
 
 DATA_DIR = "data"
